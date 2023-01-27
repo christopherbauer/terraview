@@ -1,5 +1,8 @@
 import React from "react";
 
+export const Unit = 25;
+export type Coord = { x: number; y: number };
+export type Box = { width: number; height: number };
 export enum Direction {
 	Up = "Up",
 	Down = "Down",

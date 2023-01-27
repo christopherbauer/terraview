@@ -6,8 +6,11 @@ import React, {
 	useCallback,
 	useEffect,
 	CSSProperties,
+	RefObject,
+	LegacyRef,
 } from "react";
-import { getViewportCenter, classNamer } from "../helpers";
+import styled from "styled-components";
+import { getViewportCenter } from "../helpers";
 import { usePrevious } from "../hooks";
 import {
 	Direction,
@@ -16,6 +19,7 @@ import {
 	OnMousePositionChanged,
 	OnPanningEnd,
 	OnZoom,
+	Unit,
 } from "./types";
 
 interface SVGContainerProps
@@ -86,22 +90,22 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 		() => (panningOffset?.offsetY || 0) + (ongoingPanning?.offsetY || 0),
 		[ongoingPanning?.offsetY, panningOffset?.offsetY]
 	);
-	const onResize = useCallback(() => {
-		let localRef = svgContainerRef.current;
-		if (localRef) {
-			const clientRect = localRef.getBoundingClientRect();
-			const height = clientRect.height,
-				width = clientRect.width;
-			setContainerHeight(height - 2);
-			setContainerWidth(width - 3);
-			onContainerDimensionChanged?.(width, height);
-		}
-	}, [onContainerDimensionChanged]);
-	useEffect(() => {
-		onResize();
-		window.addEventListener("resize", onResize);
-		return () => window.removeEventListener("resize", onResize);
-	}, [onResize]);
+	// const onResize = useCallback(() => {
+	// 	let localRef = svgContainerRef.current;
+	// 	if (localRef) {
+	// 		const clientRect = localRef.getBoundingClientRect();
+	// 		const height = clientRect.height,
+	// 			width = clientRect.width;
+	// 		setContainerHeight(height - 2);
+	// 		setContainerWidth(width - 3);
+	// 		onContainerDimensionChanged?.(width, height);
+	// 	}
+	// }, [onContainerDimensionChanged]);
+	// useEffect(() => {
+	// 	onResize();
+	// 	window.addEventListener("resize", onResize);
+	// 	return () => window.removeEventListener("resize", onResize);
+	// }, [onResize]);
 	useEffect(() => {
 		setViewportCenter(
 			getViewportCenter(zoom, containerWidth, containerHeight, xPan, yPan)
@@ -221,21 +225,21 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 			[draggingOffset, onMouseUp, zoom]
 		);
 	const viewBox = useMemo(() => {
-		const zoomX = containerWidth / zoom;
-		const zoomY = containerHeight / zoom;
+		const zoomX = Number(props.width) / zoom;
+		const zoomY = Number(props.height) / zoom;
 		return `${xPan} ${yPan} ${zoomX} ${zoomY}`;
-	}, [containerHeight, containerWidth, xPan, yPan, zoom]);
+	}, [props.height, props.width, xPan, yPan, zoom]);
 
 	const localStyle = useMemo(() => {
 		if (includeGrid) {
 			if (props.style) {
 				console.warn("Style overidden by includeGrid prop");
 			}
+			const gridColor = "#eeeeee22";
 			return Object.assign(props.style || {}, {
-				backgroundColor: "#ddd",
-				backgroundImage:
-					"linear-gradient(to right, #bbb 1px, transparent 1px), linear-gradient(to bottom, #bbb 1px, transparent 1px)",
-				backgroundSize: `${zoom * 50}px ${zoom * 50}px`,
+				backgroundColor: "#888888ff",
+				backgroundImage: `linear-gradient(to right, ${gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`,
+				backgroundSize: `${zoom * Unit}px ${zoom * Unit}px`,
 				backgroundPosition: `top ${-1 * yPan}px left ${-1 * xPan}px`,
 			} as CSSProperties);
 		}
@@ -310,26 +314,38 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 					{xPan} {yPan}
 				</>
 			)}
-			<div
+			<SvgContainer
 				ref={svgContainerRef}
-				className={classNamer("svg-container", className)}
 				onDoubleClick={handleDoubleClick}
 				onMouseDown={handleStartTracking}
 				onMouseMove={handleOngoingTracking}
 				onMouseUp={handleEndTracking}
 				onWheel={handleWheelEvent}
 			>
-				<svg
+				<SvgSurface
 					ref={svgRef}
-					className="svg-surface"
 					style={localStyle}
 					viewBox={viewBox}
 					{...rest}
 				>
 					{debug && gridHelpers}
 					{children}
-				</svg>
-			</div>
+				</SvgSurface>
+			</SvgContainer>
 		</>
 	);
 };
+const SvgContainer = styled.div`
+	display: block;
+	border: solid @border-width gray; //remove for borderless
+	display: flex;
+`;
+
+const SvgSurface = styled.svg<{
+	ref: any;
+}>`
+	cursor: move;
+	flex-grow: 1;
+	width: 100%;
+	height: 100%;
+`;

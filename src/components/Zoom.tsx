@@ -1,6 +1,7 @@
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
+import styled from "styled-components";
 
 interface ZoomProps {
 	zoomLevel: number;
@@ -13,14 +14,42 @@ export const zoomSteps = [
 export const Zoom: FC<ZoomProps> = (props) => {
 	const { zoomLevel, onZoomIncrease, onZoomDecrease } = props;
 	return (
-		<div className="zoom-container">
-			<button onClick={onZoomDecrease}>
+		<ZoomContainer>
+			<Button onClick={onZoomDecrease}>
 				<FontAwesomeIcon icon={faMinus} />
-			</button>
-			<div>{zoomLevel}x</div>
-			<button onClick={onZoomIncrease}>
+			</Button>
+			<ZoomLevel>{zoomLevel}x</ZoomLevel>
+			<Button onClick={onZoomIncrease}>
 				<FontAwesomeIcon icon={faPlus} />
-			</button>
-		</div>
+			</Button>
+		</ZoomContainer>
 	);
 };
+const ZoomLevel = styled.div`
+	font-weight: 600;
+	margin: 0 1em;
+`;
+const Button = styled.button`
+	outline: none;
+	background: none;
+	border: none;
+	border-radius: 1em;
+	background-color: white;
+	box-shadow: inset 0 0 10px gray;
+	padding: 0.25em 0.65em;
+
+	&:hover {
+		background-color: lightblue;
+	}
+`;
+const ZoomContainer = styled.div`
+	position: fixed;
+	display: flex;
+	width: 100%;
+
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	bottom: 2em;
+	color: white;
+`;
