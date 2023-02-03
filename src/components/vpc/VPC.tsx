@@ -4,11 +4,7 @@ import { VPCElement, VPC_THEME, VPC_THEMES } from ".";
 import { useAdjusted } from "../../hooks/useAdjusted";
 import { PathBuilder } from "../helpers";
 import { Unit } from "../types";
-export const VPC: FC<VPCElement> = ({
-	layer = 0,
-	theme = VPC_THEME.pastels,
-	...props
-}) => {
+export const VPC: FC<VPCElement> = ({ layer = 0, theme = VPC_THEME.pastels, ...props }) => {
 	const { cidr } = props;
 	const { x, y } = useAdjusted(props);
 	const { x: width, y: height } = useAdjusted({
@@ -23,11 +19,7 @@ export const VPC: FC<VPCElement> = ({
 		return builder.build();
 	}, [width]);
 	return (
-		<g
-			className="vpc"
-			style={{ stroke: color, fill: color }}
-			transform={`translate(${x} ${y})`}
-		>
+		<g style={{ stroke: color, fill: color }} transform={`translate(${x} ${y})`}>
 			<VPCRect
 				style={{ pointerEvents: "none" }}
 				width={width}

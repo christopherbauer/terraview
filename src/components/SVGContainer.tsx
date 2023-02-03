@@ -6,11 +6,8 @@ import React, {
 	useCallback,
 	useEffect,
 	CSSProperties,
-	RefObject,
-	LegacyRef,
 } from "react";
 import styled from "styled-components";
-import { getViewportCenter } from "../helpers";
 import { usePrevious } from "../hooks";
 import {
 	Direction,
@@ -28,7 +25,6 @@ interface SVGContainerProps
 		"onDoubleClick" | "onMouseMove" | "onMouseUp" | "onMouseDown"
 	> {
 	zoom: number;
-	debug?: boolean;
 	centerOnOrigin?: boolean;
 	includeGrid?: boolean;
 	onDoubleClick?: OnDoubleClick;
@@ -46,7 +42,6 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 	const {
 		children,
 		zoom,
-		debug,
 		centerOnOrigin,
 		includeGrid,
 		className,
@@ -77,10 +72,6 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 		offsetX: number;
 		offsetY: number;
 	}>({ offsetX: 0, offsetY: 0 });
-	const [viewportCenter, setViewportCenter] = useState<{
-		x: number;
-		y: number;
-	}>();
 	const prevZoom = usePrevious(zoom);
 	const xPan = useMemo(
 		() => (panningOffset?.offsetX || 0) + (ongoingPanning?.offsetX || 0),
@@ -90,27 +81,6 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 		() => (panningOffset?.offsetY || 0) + (ongoingPanning?.offsetY || 0),
 		[ongoingPanning?.offsetY, panningOffset?.offsetY]
 	);
-	// const onResize = useCallback(() => {
-	// 	let localRef = svgContainerRef.current;
-	// 	if (localRef) {
-	// 		const clientRect = localRef.getBoundingClientRect();
-	// 		const height = clientRect.height,
-	// 			width = clientRect.width;
-	// 		setContainerHeight(height - 2);
-	// 		setContainerWidth(width - 3);
-	// 		onContainerDimensionChanged?.(width, height);
-	// 	}
-	// }, [onContainerDimensionChanged]);
-	// useEffect(() => {
-	// 	onResize();
-	// 	window.addEventListener("resize", onResize);
-	// 	return () => window.removeEventListener("resize", onResize);
-	// }, [onResize]);
-	useEffect(() => {
-		setViewportCenter(
-			getViewportCenter(zoom, containerWidth, containerHeight, xPan, yPan)
-		);
-	}, [containerHeight, containerWidth, xPan, yPan, zoom]);
 	useEffect(() => {
 		if (zoom !== prevZoom && prevZoom && panningOffset) {
 			setPanningOffset({
@@ -245,75 +215,8 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 		}
 		return props.style;
 	}, [includeGrid, props.style, xPan, yPan, zoom]);
-	const gridHelpers = useMemo(() => {
-		const gridlines = (
-			<g key="grid">
-				<line
-					x1={0}
-					x2={0}
-					y1={containerHeight}
-					y2={-containerHeight}
-					stroke="red"
-					strokeWidth={2}
-				/>
-				<line
-					x1={-containerWidth}
-					x2={containerWidth}
-					y1={0}
-					y2={0}
-					stroke="red"
-					strokeWidth={2}
-				/>
-			</g>
-		);
-		const centerViewportIcon = viewportCenter && (
-			<g
-				key="center-viewport"
-				style={{
-					pointerEvents: "none",
-					transform: `translate(${viewportCenter.x}px, ${viewportCenter.y}px)`,
-				}}
-			>
-				<circle stroke="red" strokeWidth={3} r={2}></circle>
-				<text y={20}>
-					{viewportCenter.x}, {viewportCenter.y}
-				</text>
-			</g>
-		);
-		const x = 0,
-			y = 0;
-		const zeroZeroIcon = (
-			<g key="zero-zero">
-				<circle stroke="red" strokeWidth={3} r={2}></circle>
-				<text style={{ pointerEvents: "none" }} y={20}>
-					{x}, {y}
-				</text>
-			</g>
-		);
-		const topLeftIcon = (
-			<g
-				key="top-left"
-				style={{ transform: `translate(${xPan}px, ${yPan}px)` }}
-			>
-				<circle stroke="red" strokeWidth={3} r={2}></circle>
-				<text style={{ pointerEvents: "none" }} y={20}>
-					{xPan}, {yPan}
-				</text>
-			</g>
-		);
-
-		return [gridlines, centerViewportIcon, zeroZeroIcon, topLeftIcon];
-	}, [containerHeight, containerWidth, viewportCenter, xPan, yPan]);
 	return (
 		<>
-			{debug && (
-				<>
-					<label>Offset</label>
-					{panningOffset?.offsetX} {panningOffset?.offsetY}
-					<label>Pan</label>
-					{xPan} {yPan}
-				</>
-			)}
 			<SvgContainer
 				ref={svgContainerRef}
 				onDoubleClick={handleDoubleClick}
@@ -328,7 +231,6 @@ export const SVGContainer: FC<SVGContainerProps> = (props) => {
 					viewBox={viewBox}
 					{...rest}
 				>
-					{debug && gridHelpers}
 					{children}
 				</SvgSurface>
 			</SvgContainer>
