@@ -1,11 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import "./App.css";
 import { Zoom, zoomSteps } from "./components/Zoom";
 import { Direction, OnZoom } from "./components/types";
-import { SVGContainer, VPC } from "./components";
+import { SVGContainer } from "./components";
 import styled from "styled-components";
 import { UploadButton } from "./components/UploadButton";
-import { VPCElement } from "./components/vpc";
 import { TfStateDecoder } from "./components/TfStateDecoder";
 
 const App = () => {
@@ -24,19 +23,15 @@ const App = () => {
 		},
 		[zoom]
 	);
+	const width = useMemo(() => window.outerWidth * 1.2, []);
+	const height = useMemo(() => window.outerHeight * 1.2, []);
 	return (
 		<div>
 			<Header>
 				<UploadButton file={tfStateFile} onFileUploaded={handleTfStateFileChanged} />
 			</Header>
 			<div>
-				<SVGContainer
-					zoom={zoom}
-					includeGrid={true}
-					width={window.outerWidth * 1.2}
-					height={window.outerHeight * 1.2}
-					onZoom={handleZoomStep}
-				>
+				<SVGContainer zoom={zoom} includeGrid={true} width={width} height={height} onZoom={handleZoomStep}>
 					<TfStateDecoder file={tfStateFile} />
 				</SVGContainer>
 				<Zoom

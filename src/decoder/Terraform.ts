@@ -145,11 +145,7 @@ export interface Principal {
 	type: string;
 }
 
-export interface Tags {
-	Environment: Environment;
-	Service?: string;
-	Name?: Environment;
-}
+export interface Tags extends Record<string, string> {}
 
 export enum Environment {
 	Corporate = "corporate",

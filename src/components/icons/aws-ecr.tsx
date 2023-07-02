@@ -8,10 +8,10 @@ export const AWSEcr = ({ width, height }: Size) => {
 			xmlnsXlink="http://www.w3.org/1999/xlink"
 			viewBox="0 0 85 85"
 			fill="#fff"
-			fill-rule="evenodd"
+			fillRule="evenodd"
 			stroke="#000"
-			stroke-linecap="round"
-			stroke-linejoin="round"
+			strokeLinecap="round"
+			strokeLinejoin="round"
 			width={width}
 			height={height}
 		>
